@@ -1,6 +1,6 @@
 import Person from "./Person";
 
-const ContactList = ({contacts, filter}) => {
+const ContactList = ({contacts, filter, del}) => {
     let cond = (c) => c.name.toLowerCase().includes(filter.toLowerCase()) | c.number.toLowerCase().includes(filter.toLowerCase()) | filter == "";
     
     return (
@@ -10,7 +10,7 @@ const ContactList = ({contacts, filter}) => {
             <tbody>
                 {contacts.map(contact => {
                     if(cond(contact)) {
-                        return <Person key={contact.name} name={contact.name} num={contact.number}/>
+                        return <Person key={contact.name} id={contact.id} name={contact.name} num={contact.number} del={del}/>
                     };
                 })}
             </tbody>
