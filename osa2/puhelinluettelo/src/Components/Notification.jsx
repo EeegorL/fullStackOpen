@@ -1,6 +1,6 @@
 const Notification = ({msg, type}) => {
     return (
-        <p className={type}>{msg}</p>
+        <p className={`${type} notif`}>{msg}</p>
     );
 };
 
