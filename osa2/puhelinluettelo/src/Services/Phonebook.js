@@ -7,6 +7,13 @@ const getAll = async () => {
 };
 
 const create = async (obj) => {
+    await axios.get(baseUrl)
+    .then(res => res.data)
+    .then(data => {
+        if(data.some(d => d.name === obj.name)) {
+            throw new Error("Henkilö on jo olemassa!");
+        };
+    });
     const res = await axios.post(baseUrl, obj);
     return res.data;
 };
@@ -16,14 +23,19 @@ const annihilate = async (id) => {
         const res = await axios.delete(`${baseUrl}/${id}`);
         return res.data;
     }
-    catch(err) {
-        alert("Yhteystieto oli jo poistettu!");
+    catch(e) {
+        throw new Error("Henkilö oli jo poistettu!");
     };
 };
 
 const update = async (id, obj) => {
-    const res = await axios.put(`${baseUrl}/${id}`, obj);
-    return res.data;
+    try {
+        const res = await axios.put(`${baseUrl}/${id}`, obj);
+        return res.data;
+    }
+    catch(e) {
+        throw new Error("Henkilöä ei ole olemassa");
+    }
 };
 
 export default { getAll, create, annihilate, update };
