@@ -1,5 +1,7 @@
 import axios from "axios";
+
 const baseUrl = "https://studies.cs.helsinki.fi/restcountries/api";
+const openWeatherMap_baseUrl = "https://api.openweathermap.org/data/2.5/weather";
 
 const getCommonNames = async () => {
     const res = await axios.get(`${baseUrl}/all`);
@@ -11,7 +13,11 @@ const getDetailed = async (country) => {
     return res.data;
 };
 
-const getWeather = async (country) => {
-    const res = _;
+const getWeather = async (lat, lon) => {
+    const key = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
+    const url = `${openWeatherMap_baseUrl}?lat=${lat}&lon=${lon}&appid=${key}`;
+
+    const res = await axios.get(url);
+    return res.data;
 };
-export default { getCommonNames, getDetailed };
+export default { getCommonNames, getDetailed, getWeather };
