@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 const { newId } = require("./utils");
 
@@ -7,6 +8,7 @@ const app = express();
 const PORT = 3001;
 
 app.use(express.json());
+app.use(cors());
 
 morgan.token("body", req => {
   return JSON.stringify(req.body)
@@ -80,6 +82,24 @@ app.post("/api/persons", (req, res) => {
     ? res.status(409).json({errors: virheet})
     : persons.push(newPerson)
     res.status(201).end();
+});
+
+app.put("/api/persons/:id", (req, res) => {
+    const id = req.params.id;
+    const name = req.body.name;
+    const number = req.body.number;
+
+    if(!persons.some(p => p.id === id)) {
+        res.status(404).json({error: "Henkilöä ei ole olemassa"});
+    };
+
+    const idx = persons.findIndex(p => p.id === id);
+    persons[idx] = {
+        id: id,
+        name: name,
+        number: number
+    };
+    res.status(200).end();
 });
 
 app.delete("/api/persons/:id", (req, res) => {
