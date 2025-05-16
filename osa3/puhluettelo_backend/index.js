@@ -1,9 +1,17 @@
 const express = require("express");
+const morgan = require("morgan");
+
 const { newId } = require("./utils");
+
 const app = express();
 const PORT = 3001;
 
 app.use(express.json());
+
+morgan.token("body", req => {
+  return JSON.stringify(req.body)
+});
+app.use(morgan(":method :url :status :res[content-length] - :response-time ms | :body"));
 
 let persons = [
     {
@@ -86,5 +94,5 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log("Listening on ")
+    console.log("Listening on " + PORT)
 })
