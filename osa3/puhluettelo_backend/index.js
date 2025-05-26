@@ -9,6 +9,7 @@ const PORT = 3001;
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static("dist"));
 
 morgan.token("body", req => {
   return JSON.stringify(req.body)
@@ -39,9 +40,6 @@ let persons = [
 ];
 const ids = persons.map(p => p.id);
 
-app.get("/", (req, res) => {
-    res.redirect("/api");
-});
 
 app.get("/info", (req, res) => {
     res.send(`

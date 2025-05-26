@@ -29,5 +29,16 @@ export default [
         { allowConstantExport: true },
       ],
     },
-  },
+    server: {
+      proxy: {
+        "/api": {
+          target: 'http://localhost:3001/api',
+          changeOrigin: true,
+        }
+
+      },
+      }
+    },
 ]
+
+
