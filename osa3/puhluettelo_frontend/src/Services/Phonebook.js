@@ -21,10 +21,12 @@ const create = async (obj) => {
 const annihilate = async (id) => {
     try {
         const res = await axios.delete(`${baseUrl}/${id}`);
-        return res.data;
+        console.log(res.data.deletedCount)
+        if(res.data.deletedCount > 0) return res.data
+        else throw new Error("Henkilöä ei ole olemassa");
     }
     catch(e) {
-        throw new Error("Henkilö oli jo poistettu!");
+        throw new Error(e);
     };
 };
 
