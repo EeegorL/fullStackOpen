@@ -21,18 +21,17 @@ const create = async (obj) => {
 const annihilate = async (id) => {
     try {
         const res = await axios.delete(`${baseUrl}/${id}`);
-        console.log(res.data.deletedCount)
-        if(res.data.deletedCount > 0) return res.data
-        else throw new Error("Henkilöä ei ole olemassa");
+        return res.data
     }
     catch(e) {
-        throw new Error(e);
+        throw new Error("Henkilöä ei ole olemassa");
     };
 };
 
 const update = async (id, obj) => {
     try {
         const res = await axios.put(`${baseUrl}/${id}`, obj);
+        if(res.data === null) throw new Error("Henkilöä ei ole olemassa");
         return res.data;
     }
     catch(e) {

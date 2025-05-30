@@ -1,12 +1,14 @@
-const newId = (persons) => {
-    const idArr = persons.map(person => parseInt(person.id));
-
-    while(true) {
-        let id = Math.floor(Math.random() * 10**5).toString();
-        if(!idArr.includes(id)) {
-            return id;
-        }
-    }
+const newErr = (name, message) => {
+    const error = new Error();
+    error.name = name;
+    error.message = message;
+    return error;
 };
 
-module.exports = { newId };
+const errors = Object.freeze({
+    BodyMissingError: newErr("BodyMissingError", "The required body is missing"),
+    BodyFormatError: newErr("BodyFormatError", "The provided body is of wrong format"),
+    NotFoundError: newErr("NotFoundError", "The id is not associated with any record")
+});
+
+module.exports = {errors};

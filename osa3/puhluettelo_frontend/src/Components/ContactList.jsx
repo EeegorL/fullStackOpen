@@ -2,7 +2,6 @@ import Person from "./Person";
 
 const ContactList = ({contacts, filter, del}) => {
     let cond = (c) => c.name.toLowerCase().includes(filter.toLowerCase()) | c.number.toLowerCase().includes(filter.toLowerCase()) | filter == "";
-    
     return (
         <>
         <h2>Yhteystiedot</h2>
