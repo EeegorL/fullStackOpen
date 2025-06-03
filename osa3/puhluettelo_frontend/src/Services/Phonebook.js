@@ -14,7 +14,12 @@ const create = async (obj) => {
             throw new Error("Henkilö on jo olemassa!");
         };
     });
-    const res = await axios.post(baseUrl, obj);
+
+    const res = await axios.post(baseUrl, obj)
+    .catch(err => {
+        throw new Error(err.response.data.error);
+    });
+
     return res.data;
 };
 

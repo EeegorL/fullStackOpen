@@ -66,7 +66,7 @@ const App = () => {
     else {
       Phonebook.create(newPerson)
       .then(() => showNotification(`${newName} lisätty!`, "info"))
-      .catch(() => showNotification("Henkilö on jo olemassa", "error"))
+      .catch(err => showNotification(err.message, "error"))
       .then(() => Phonebook.getAll().then(a => setPersons(a)));
     }
   };

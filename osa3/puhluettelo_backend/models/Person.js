@@ -8,15 +8,38 @@ mongoose.set("strictQuery", false);
 mongoose.connect(url)
 .catch(err => console.log("Kirjautuminen epäonnistui. Salasana muuttunut?", err));
 
+const validation = (val) => {
+  try {
+    const parts = val.split("-");
+    if (parts.length !== 2) return false;
+    if (parts[0].length < 2 || parts[0].length > 3) return false;
+    if (parts[0].length + parts[1].length < 8) return false;
+
+    return true;
+  }
+  catch (e) {
+    return false;
+  }
+}
+
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
+    name: {
+      type: String,
+      minlength: 3,
+      required: true
+    },
+    number: {
+      type: String,
+      minlength: 8,
+      validate: validation,
+      required: true
+    }
 })
 .set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
+  transform: (doc, obj) => {
+    obj.id = obj._id.toString()
+    delete obj._id
+    delete obj.__v
   }
 });
 
