@@ -28,7 +28,7 @@ const annihilate = async (id) => {
         const res = await axios.delete(`${baseUrl}/${id}`);
         return res.data
     }
-    catch(e) {
+    catch(err) {
         throw new Error("Henkilöä ei ole olemassa");
     };
 };
@@ -39,8 +39,8 @@ const update = async (id, obj) => {
         if(res.data === null) throw new Error("Henkilöä ei ole olemassa");
         return res.data;
     }
-    catch(e) {
-        throw new Error("Henkilöä ei ole olemassa");
+    catch(err) {
+        throw new Error(err.response.data.error);
     }
 };
 
