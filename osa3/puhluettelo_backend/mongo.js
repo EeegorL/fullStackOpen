@@ -9,38 +9,38 @@ mongoose.set("strictQuery", false);
 mongoose.connect(url);
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
+  name: String,
+  number: String
 }).set("toJSON", {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
   }
 });
 
 const Person = mongoose.model("Person", personSchema);
 
 if(args.length === 3) {
-    Person.find({})
-        .then(res => {
-            console.log("Puhelinluettelo:");
-            for(let p of res) {
-                console.log(p.name, p.number);
-            }
-            mongoose.connection.close();
-        });
+  Person.find({})
+    .then((res) => {
+      console.log("Puhelinluettelo:");
+      for(let p of res) {
+        console.log(p.name, p.number);
+      }
+      mongoose.connection.close();
+    });
 }
 else {
-    const name = args[3];
-    const number = args[4];
+  const name = args[3];
+  const number = args[4];
 
-    const newPerson = new Person({
-        name, number
-    });
+  const newPerson = new Person({
+    name, number
+  });
 
-    newPerson.save().then(() => {
-        console.log("Tallennettu!");
-        mongoose.connection.close();
-    });
+  newPerson.save().then(() => {
+    console.log("Tallennettu!");
+    mongoose.connection.close();
+  });
 };
