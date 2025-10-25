@@ -7,6 +7,7 @@ const logger = require("./utils/logger");
 
 
 logger.log("Yhdistetään...");
+
 mongo.connect(config.MONGO_URI)
     .then(logger.log("Yhdistetty"))
     .catch(e => logger.error(e));
