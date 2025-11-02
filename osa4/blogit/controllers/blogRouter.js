@@ -13,7 +13,8 @@ blogRouter.post("/", (req, res) => {
       res.status(201).json(result);
     })
     .catch(err => {
-      res.status(404).json(err);
+      console.log(err)
+      res.status(400).json(err);
     })
 });
 
