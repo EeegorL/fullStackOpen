@@ -7,7 +7,7 @@ const blogSchema = new mongo.Schema({
   likes: Number
 }).set("toJSON", {
     transform: (doc, obj) => {
-        obj.id == obj._id.toString();
+        obj.id = obj._id.toString();
         delete obj._id;
         delete obj.__v;
     }

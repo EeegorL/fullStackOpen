@@ -1,4 +1,4 @@
-const {test, after, beforeEach} = require("node:test");
+const {test, after, beforeEach, describe} = require("node:test");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 
@@ -19,48 +19,106 @@ beforeEach(async () => {
     }
 });
 
-test("blogs return as JSON", async () => {
-    await api
-        .get("/")
-        .expect(200)
-        .expect("Content-Type", /application\/json/)
+describe("when GETting blogs,", () => {
+    test("blogs return as JSON", async () => {
+        await api
+            .get("/")
+            .expect(200)
+            .expect("Content-Type", /application\/json/)
+    });
+
+    test("all blogs are returned", async () => {
+        const res = await api.get("/");
+        assert.strictEqual(res.body.length, blogs.length);
+    });
+
+    test("a specific blog is within the returned blogs", async () => {
+        const specimen = blogs[2];
+        delete specimen._id;
+        delete specimen.__v;
+
+        const allBlogs = await api.get("/");
+        const blogAddresses = allBlogs.body.map(b => b.url);
+
+        assert.deepStrictEqual(await blogAddresses.includes(specimen.url), true);
+    });
+
+    test("the id-field is set manually in the default's stead", async () => {
+        const res = (await api.get("/")).body;
+        const sample = res[0];
+
+        assert(sample._id === undefined);
+        assert(sample.id);
+    });
 });
 
-test("all blogs are returned", async () => {
-    const res = await api.get("/");
-    assert.strictEqual(res.body.length, 6);
+describe("when POSTing blogs,", async () => {
+    test("a blog is added successfully", async () => {
+        const newBlog = {
+            title: "A new blog",
+            author: "The blog's author",
+            url: "The blog's url",
+            likes: 1
+        };
+
+        await api.post("/")
+        .send(newBlog)
+        .expect(201)
+        .expect("Content-Type", /application\/json/);
+
+        const getBlogs = (await api.get("/")).body;
+        const contents = getBlogs.map(blog => blog.url);
+
+        assert.strictEqual(contents.length, blogs.length + 1);
+        assert(contents.includes(newBlog.url));
+    });
+
+    test("a blog without like field is initialized correctly", async () => {
+        const newBlog = {
+            title: "A new blog",
+            author: "The blog's author",
+            url: "The blog's url",
+        };
+
+        await api.post("/").send(newBlog);
+
+        const getBlogs = (await api.get("/")).body;
+        const addedNewBlog = getBlogs[getBlogs.length - 1];
+
+        assert(addedNewBlog.likes === 0);
+    });
+
+    test("a blog without title or url fails", async () => {
+        const noTitle = {
+            author: "The blog's author",
+            url: "The blog's url",
+        };
+
+        const noUrl = {
+            title: "A new blog",
+            author: "The blog's author",
+        };
+
+        const neither = {
+            author: "The blog's author",
+        };
+
+        // ois voinu tehdä Promise.all listalla mut tehää näi
+
+        await api.post("/")
+        .send(noTitle)
+        .expect(400);
+
+        await api.post("/")
+        .send(noUrl)
+        .expect(400);
+
+        await api.post("/")
+        .send(neither)
+        .expect(400);
+    });
 });
 
-test("a specific blog is within the returned blogs", async () => {
-    const specimen = blogs[2];
-    delete specimen._id;
-    delete specimen.__v;
-
-    const allBlogs = await api.get("/");
-    const blogAddresses = allBlogs.body.map(b => b.url);
-
-    assert.deepStrictEqual(await blogAddresses.includes(specimen.url), true);
-});
-
-test("a blog can be added", async () => {
-    const newBlog = {
-        title: "A new blog",
-        author: "The blog's author",
-        url: "The blog's url",
-        likes: 1
-    };
-
-    await api.post("/")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
-
-    const getBlogs = (await api.get("/")).body;
-    const contents = getBlogs.map(blog => blog.url);
-
-    assert.strictEqual(contents.length, blogs.length + 1);
-    assert(contents.includes(newBlog.url));
-});
 
 after(async() => {
     await mongoose.connection.close();
