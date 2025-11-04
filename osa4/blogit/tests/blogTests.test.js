@@ -1,6 +1,6 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
-const {favoriteBlog, totalLikes, authorWithMostBlogs, authorWithMostLikes, dummy, blogs, } = require('../utils/listHelper')
+const {favoriteBlog, totalLikes, authorWithMostBlogs, authorWithMostLikes, dummy, blogs, } = require('../utils/helper')
 
 test('dummy returns one', () => {
   const blogs = []

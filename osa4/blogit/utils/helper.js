@@ -93,8 +93,19 @@ const authorWithMostLikes = (blogs) => {
     author: mostLikedAuthor,
     likes: authors[mostLikedAuthor]
   };
-}
+};
+
+const Blog = require("../models/Blog");
+const User = require("../models/User");
+
+const blogsInDb = async () => {
+  return await Blog.find({});
+};
+
+const usersInDb = async () => {
+  return await User.find({});
+};
 
 module.exports = {
-  dummy, totalLikes, favoriteBlog, authorWithMostBlogs, authorWithMostLikes, blogs
+  dummy, totalLikes, favoriteBlog, authorWithMostBlogs, authorWithMostLikes, blogs, blogsInDb, usersInDb
 };
