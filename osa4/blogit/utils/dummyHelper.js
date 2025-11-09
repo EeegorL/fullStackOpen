@@ -1,3 +1,3 @@
-const dummy = () => 1;
+const dummy = ([]) => 1;
 
 module.exports = {dummy};
