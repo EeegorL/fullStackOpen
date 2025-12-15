@@ -11,7 +11,6 @@ mongoose.connect(mongo_uri)
 .then(()=>console.log("Yhdistetty"))
 .catch(err => console.log(err));
 
-
 app.use("/api/blogs", blogController);
 
 app.use(errorHandler);

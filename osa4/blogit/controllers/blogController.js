@@ -1,7 +1,6 @@
 const express = require("express");
 const blogController = express();
 const Blog = require("../models/Blog");
-const {errorHandler} = require("../utils/middleware");
 
 blogController.get("/", async (req, res, next) => {
     try {
