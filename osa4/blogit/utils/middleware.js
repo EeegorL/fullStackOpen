@@ -9,6 +9,9 @@ const errorHandler = (err, req, res, next) => {
     if(err.name === "MongoServerError" && err.message.includes("E11000 duplicate key error collection")) {
         res.status(409).json({err: "Duplicate key"});
     }
+    else if(err.name === "ValidationError") {
+        res.status(400).json({err: "Validation failed, check input"});
+    }
     next();
 };
 

@@ -3,11 +3,21 @@ const mongoose = require("mongoose");
 const blogSchema = new mongoose.Schema({
     title: {
         type: String,
-        unique: true
+        required: true,
+        unique: 1
     },
-    url: String,
-    author: String,
-    likes: Number
+    url: {
+        type: String,
+        unique: 1
+    },
+    author: {
+        type: String,
+        required: true
+    },
+    likes: {
+        type: Number,
+        default: 0,
+    }
 }).set("toJSON", {
     transform: (doc, obj) => {
         obj.id = obj._id.toString();

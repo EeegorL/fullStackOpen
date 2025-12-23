@@ -8,9 +8,8 @@ const {mongo_uri} = require("./utils/config");
 app.use(express.json());
 
 mongoose.connect(mongo_uri)
-.then(()=>console.log("Yhdistetty"))
-.catch(err => console.log(err));
-
+    .then(()=>console.log("Yhdistetty"))
+    .catch(err => console.log(err));
 
 app.use("/api/blogs", blogController);
 

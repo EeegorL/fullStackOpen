@@ -15,7 +15,8 @@ blogController.get("/", async (req, res, next) => {
 
 blogController.post("/", async (req, res, next) => {
     try {
-        const blog = new Blog(req.body)
+        const blog = new Blog(req.body);
+        
         const created = await blog.save();
         
         res.status(201).json(created);

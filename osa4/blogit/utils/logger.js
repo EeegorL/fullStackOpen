@@ -3,7 +3,7 @@ const info = (msg) => {
 }
 
 const error = (msg) => {
-    console.log(msg);
+    console.error(msg);
 }
 
 module.exports = {info, error};
