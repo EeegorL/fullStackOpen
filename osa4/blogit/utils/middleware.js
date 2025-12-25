@@ -10,7 +10,10 @@ const errorHandler = (err, req, res, next) => {
         res.status(409).json({err: "Duplicate key"});
     }
     else if(err.name === "ValidationError") {
-        res.status(400).json({err: "Validation failed, check input"});
+        res.status(400).json({err: "Validation failed"});
+    }
+    else if(err.name === "StrictModeError") {
+        res.status(400).json({err: "Invalid data"});
     }
     next();
 };
