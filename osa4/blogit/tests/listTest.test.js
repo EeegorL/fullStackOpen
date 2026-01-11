@@ -1,6 +1,6 @@
 const {test, describe} = require("node:test");
 const assert = require("node:assert");
-const {blogs, totalLikes, favoriteBlog, mostBlogs, mostLikes} = require("../utils/listHelper");
+const {blogs, totalLikes, favoriteBlog, mostBlogs, mostLikes} = require("../utils/blogHelper");
 
 describe("total likes", () => {
     test("of an empty array is 0", () => {

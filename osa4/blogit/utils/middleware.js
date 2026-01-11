@@ -6,7 +6,7 @@ const log = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-    if(err.name === "MongoServerError" && err.message.includes("E11000 duplicate key error collection")) {
+    if(err.name === "MongoServerError" && err.message.includes("E11000 duplicate key error")) {
         res.status(409).json({err: "Duplicate key"});
     }
     else if(err.name === "ValidationError") {

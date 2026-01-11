@@ -1,12 +1,11 @@
+const app = require("../app");
+const Blog = require("../models/Blog.js");
+const supertest = require("supertest");
+const {blogs} = require("../utils/blogHelper.js");
+
 const {test, describe, beforeEach, after} = require("node:test");
 const assert = require("node:assert");
-
-const supertest = require("supertest");
 const mongoose = require("mongoose");
-const app = require("../app");
-const Blog = require("../models/Blog");
-
-const {blogs} = require("../utils/listHelper.js");
 
 const api = supertest(app);
 
@@ -14,26 +13,169 @@ const initialBlogs = blogs();
 
 beforeEach(async () => {
     await Blog.deleteMany({});
-
-    for(let blog of initialBlogs) {
-        let b = new Blog(blog);
-        await b.save();
+    for(const blog of initialBlogs) {
+        const newBlog = new Blog(blog);
+        await newBlog.save();
     }
 });
 
-describe("When fetching blogs,", () => {
-    test("all are returned", async () => {
-        const f = await api.get("/api/blogs");
-        assert.strictEqual(f.body.length, initialBlogs.length);
-    });
-
-    test("blogs are returned as JSON", async () => {
+describe("when fetching blogs", () => {
+    test("the blogs are successfully returned as JSON", async () => {
         await api.get("/api/blogs")
         .expect(200)
         .expect("Content-Type", /application\/json/);
+
+        assert(((await api.get("/api/blogs"))).body.length === initialBlogs.length);
+    });
+
+    test("a specific blog is successfully returned", async () => {
+        const exampleBlog = initialBlogs[0];
+
+        await api.get(`/api/blogs/${exampleBlog._id}`)
+        .expect(200);
+
+        const fetchedBlog = await api.get(`/api/blogs/${exampleBlog._id}`);
+        assert(exampleBlog.id === fetchedBlog.id);
+    });
+
+    test("a non-existent blog returns a 404 not found", async () => {
+        await api.get("/api/blogs/thisIdIsNotReal")
+        .expect(404);
+    });
+
+    test("the identifying field is 'id'", async () => {
+        const f = (await api.get("/api/blogs")).body[0];
+        assert(f.id && !f._id);
+    });
+
+    test("a specific blog is amongst the blogs", async () => {
+        const f = (await api.get("/api/blogs")).body;
+        const expectedBlog = initialBlogs[0];
+
+        assert(f.some(x => x.id === expectedBlog._id));
+    });
+});
+
+describe("when adding blogs,", () => {
+    test("a single blog can be added", async () => {
+        const testBlog = {
+            _id: '5a422aa71b54a676234d4512',
+            title: 'To Go Question Considered Useful',
+            author: 'Wedsger D. Jikstra',
+            url: 'http://www.somelink.com/blog',
+            likes: 50,
+            __v: 0
+        };
+
+        const beforeLen = (await Blog.find({})).length;
+        await api.post("/api/blogs")
+        .send(testBlog)
+        .expect(201);
+        const afterLen = (await Blog.find({})).length;
+
+        assert(afterLen === beforeLen + 1);
+    });
+
+    test("a blog without set likes is initialized to 0", async () => {
+        const testBlog = {
+            _id: '5a422aa71b54a676234d4512',
+            title: 'To Go Question Considered Useful',
+            author: 'Wedsger D. Jikstra',
+            url: 'http://www.somelink.com/blog',
+        //  likes: 0,
+            __v: 0
+        };
+
+        await api.post("/api/blogs")
+        .send(testBlog)
+        .expect(201);
+
+        const addedBlog = await Blog.findOne({url: testBlog.url});
+        assert(addedBlog.likes === 0);
+    });
+
+    test("a blog without a title or url is rejected with 400", async () => {
+        await api.post("/api/blogs")
+        .send(
+            {
+            _id: '5a422aa71b54a676234d4512',
+            title: 'To Go Question Considered Useful',
+            author: 'Wedsger D. Jikstra',
+            likes: 0,
+            __v: 0
+            }
+        )
+        .expect(400);
+
+        await api.post("/api/blogs")
+        .send(
+            {
+            _id: '5a422aa71b54a676234d4512',
+            author: 'Wedsger D. Jikstra',
+            url: 'http://www.somelink.com/blog',
+            likes: 0,
+            __v: 0
+            }
+        )
+        .expect(400);
+    });
+});
+
+describe("when deleting blogs,", () => {
+    test("one can be successfully deleted", async () => {
+        const exampleBlog = await Blog.findOne({});
+        const exampleId = exampleBlog.id;
+
+        await api.delete(`/api/blogs/${exampleId}`)
+        .expect(200);
+
+        await api.get(`/api/blogs/${exampleId}`)
+        .expect(404);
+    });
+
+    test("a non-existent one returns a 404", async () => {
+        await api.delete("/api/blogs/aNonExistentBlogId")
+        .expect(404);
+    });
+});
+
+describe("when updating blogs,", () => {
+    test("a blog can be updated with valid data", async () => {
+        const exampleBlog = await Blog.findOne({});
+        const exampleId = exampleBlog.id;
+
+        const modifications = {
+            ...exampleBlog.toObject(),
+            likes: 100,
+            title: exampleBlog.title + " : revised edition",
+        };
+
+        await api.put(`/api/blogs/${exampleId}`)
+        .send(modifications)
+        .expect(200);
+
+        const updatedBlog = await Blog.findOne({_id: modifications._id});
+        assert(updatedBlog.title === modifications.title);
+    });
+
+    test("an update with invalid data is rejected", async () => {
+        const exampleBlog = await Blog.findOne({});
+        const exampleId = exampleBlog.id;
+
+        const modifications = {
+            ...exampleBlog.toObject(),
+            likes: 100,
+            title: exampleBlog.title + " : revised edition",
+            price: 500,
+            weight_g: 52,
+        };
+
+        await api.put(`/api/blogs/${exampleId}`)
+        .send(modifications)
+        .expect(400);
     });
 });
 
 after(async () => {
     await mongoose.connection.close();
-})
+});
