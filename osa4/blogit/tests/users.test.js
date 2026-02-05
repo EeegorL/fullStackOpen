@@ -20,8 +20,6 @@ const api = supertest(app);
         await dummyUser.save();
     });
 describe("with one user in db,", () => {
-
-
     test("creation with unused username succeeds", async () => {
         const usersThen = await User.find({});
 
@@ -54,6 +52,28 @@ describe("with one user in db,", () => {
         await api.post("/api/users")
         .send(existingUsernameUser)
         .expect(409);
+    });
+
+    test("creation with invalid user data fails", async () => {
+        const usernameTooShort = {
+            username: "a",
+            name: "Jarkko Jotonen",
+            password: "abcdefghijklmn"
+        }
+
+        await api.post("/api/users")
+        .send(usernameTooShort)
+        .expect(400);
+
+        const passwordTooShort = {
+            username: "Jaaaaaaaarkko",
+            name: "Jarkko Jotonen",
+            password: "a"
+        }
+
+        await api.post("/api/users")
+        .send(passwordTooShort)
+        .expect(400);
     });
 
     after(async () => {

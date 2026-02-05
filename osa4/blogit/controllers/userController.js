@@ -10,6 +10,8 @@ userController.get("/", async (req, res) => {
 userController.post("/", async (req, res, next) => {
     try {
         const {username, name, password} = req.body;
+        if(password.length < 3) res.status(400).json({err: "Validation failed"});
+
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
         
