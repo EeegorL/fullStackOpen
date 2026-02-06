@@ -1,3 +1,5 @@
+const User = require("../models/User");
+
 const blogs = () => { // funktiona myöhempää varten
     return [
         {
@@ -51,6 +53,10 @@ const blogs = () => { // funktiona myöhempää varten
     ]
 };
 
+const someUser = async () => {
+    return await User.findOne({});
+}
+
 const totalLikes = (arr) => arr.reduce((sum, n) => sum += n.likes, 0);
 
 const favoriteBlog = (arr) => {
@@ -99,4 +105,4 @@ const mostLikes = (arr) => {
     }
 };
 
-module.exports = {totalLikes, favoriteBlog, mostBlogs, mostLikes, blogs};
+module.exports = {totalLikes, favoriteBlog, mostBlogs, mostLikes, blogs, someUser};

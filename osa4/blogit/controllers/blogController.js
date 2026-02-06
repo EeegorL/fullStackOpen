@@ -1,6 +1,7 @@
 const express = require("express");
 const blogController = express();
 const Blog = require("../models/Blog");
+const User = require("../models/User");
 
 blogController.get("/", async (req, res, next) => {
     try {
@@ -28,7 +29,7 @@ blogController.get("/:id", async (req, res, next) => {
 blogController.post("/", async (req, res, next) => {
     try {
         if(!req.body.author || !req.body.url) res.status(400).end();
-
+        const author = User.find({})[0];
         const blog = new Blog(req.body);
         
         const created = await blog.save();

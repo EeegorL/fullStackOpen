@@ -1,11 +1,12 @@
 const app = require("../app");
 const Blog = require("../models/Blog.js");
 const supertest = require("supertest");
-const {blogs} = require("../utils/blogHelper.js");
+const {blogs, someUser} = require("../utils/blogHelper.js");
 
 const {test, describe, beforeEach, after} = require("node:test");
 const assert = require("node:assert");
 const mongoose = require("mongoose");
+const User = require("../models/User.js");
 
 const api = supertest(app);
 
@@ -14,6 +15,10 @@ const initialBlogs = blogs();
 beforeEach(async () => {
     await Blog.deleteMany({});
     for(const blog of initialBlogs) {
+        // temp
+        const author = await User.findOne({});
+        blog.author = author.id;
+
         const newBlog = new Blog(blog);
         await newBlog.save();
     }
@@ -61,7 +66,7 @@ describe("when adding blogs,", () => {
         const testBlog = {
             _id: '5a422aa71b54a676234d4512',
             title: 'To Go Question Considered Useful',
-            author: 'Wedsger D. Jikstra',
+            author: (await someUser()).id,
             url: 'http://www.somelink.com/blog',
             likes: 50,
             __v: 0
@@ -80,7 +85,7 @@ describe("when adding blogs,", () => {
         const testBlog = {
             _id: '5a422aa71b54a676234d4512',
             title: 'To Go Question Considered Useful',
-            author: 'Wedsger D. Jikstra',
+            author: (await someUser()).id,
             url: 'http://www.somelink.com/blog',
         //  likes: 0,
             __v: 0
@@ -100,7 +105,7 @@ describe("when adding blogs,", () => {
             {
             _id: '5a422aa71b54a676234d4512',
             title: 'To Go Question Considered Useful',
-            author: 'Wedsger D. Jikstra',
+            author: (await someUser()).id,
             likes: 0,
             __v: 0
             }
@@ -111,7 +116,7 @@ describe("when adding blogs,", () => {
         .send(
             {
             _id: '5a422aa71b54a676234d4512',
-            author: 'Wedsger D. Jikstra',
+            author: (await someUser()).id,
             url: 'http://www.somelink.com/blog',
             likes: 0,
             __v: 0
