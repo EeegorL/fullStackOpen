@@ -5,7 +5,7 @@ const User = require("../models/User");
 
 blogController.get("/", async (req, res, next) => {
     try {
-        const blogs = await Blog.find({});
+        const blogs = await Blog.find({}).populate("author", {blogs: 0});
         res.status(200).json(blogs);
     }
     catch(err) {
@@ -29,14 +29,19 @@ blogController.get("/:id", async (req, res, next) => {
 blogController.post("/", async (req, res, next) => {
     try {
         if(!req.body.author || !req.body.url) res.status(400).end();
-        const author = User.find({})[0];
+        const author = await User.findOne({});
+
+        req.body.author = author.id;
         const blog = new Blog(req.body);
         
         const created = await blog.save();
+        author.blogs.push(blog.id);
+        await author.save();
         
         res.status(201).json(created);
     }
     catch(err) {
+        console.log(err)
         next(err);
     }
 });

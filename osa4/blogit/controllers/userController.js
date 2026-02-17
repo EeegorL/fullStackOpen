@@ -4,7 +4,13 @@ const userController = express();
 const User = require("../models/User");
 
 userController.get("/", async (req, res) => {
-    res.status(200).json({text: "skibidi"});
+    try {
+        const users = await User.find({}).populate("blogs", {likes: 0});
+        res.status(200).json(users);
+    }
+    catch(err) {
+        next(err);
+    }
 });
 
 userController.post("/", async (req, res, next) => {
