@@ -7,6 +7,7 @@ const userController = require("./controllers/userController");
 
 const {log, errorHandler} = require("./utils/middleware");
 const {mongo_uri} = require("./utils/config");
+const loginController = require("./controllers/loginController");
 
 app.use(express.json());
 
@@ -16,6 +17,7 @@ mongoose.connect(mongo_uri)
 
 app.use("/api/blogs", blogController);
 app.use("/api/users", userController);
+app.use("/api/login", loginController);
 
 app.use(errorHandler);
 app.use(log);

@@ -1,6 +1,5 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
-const userController = express();
+const userController = require("express").Router();
 const User = require("../models/User");
 
 userController.get("/", async (req, res) => {
