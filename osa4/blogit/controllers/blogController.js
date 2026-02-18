@@ -1,6 +1,10 @@
 const blogController = require("express").Router();
 const Blog = require("../models/Blog");
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const {tokenExtractor} = require("../utils/middleware");
+
+blogController.use(tokenExtractor)
 
 blogController.get("/", async (req, res, next) => {
     try {
@@ -27,20 +31,26 @@ blogController.get("/:id", async (req, res, next) => {
 
 blogController.post("/", async (req, res, next) => {
     try {
-        if(!req.body.author || !req.body.url) res.status(400).end();
-        const author = await User.findOne({});
+        if(!req.body.title || !req.body.url) return res.status(400).end();
+        
+        const token = req.token;
+        if(!token) return res.status(401).json({err: "Authorization token missing you nitwit"});
 
-        req.body.author = author.id;
-        const blog = new Blog(req.body);
+        const auth = jwt.verify(token, process.env.JWT_SECRET);
+        if(!auth.id) return res.status(401).json({err: "Invalid token you scatterbrain"});
+        // console.log(auth)
+        const author = await User.findById(auth.id);
+        if(!author) return res.status(400).json({err: "You... do not exist? How is that possible?"});
+
+        const blog = new Blog({...req.body, author: author.id});
         
         const created = await blog.save();
         author.blogs.push(blog.id);
         await author.save();
         
-        res.status(201).json(created);
+        return res.status(201).json(created);
     }
     catch(err) {
-        console.log(err)
         next(err);
     }
 });

@@ -24,7 +24,12 @@ loginController.post("/", async (req, res) => {
 
     const token = jwt.sign(tokenBody, process.env.JWT_SECRET);
 
-    return res.status(200).json({token: token, data: tokenBody});
+    return res.status(200).json(
+        {
+            token: token,
+            data: tokenBody
+        }
+    );
 });
 
 module.exports = loginController;
