@@ -59,7 +59,6 @@ blogController.delete("/:id", userExtractor, async (req, res, next) => {
         if(authorId.toString() !== req.user.id.toString()) {
             return res.status(401).json({err: "Unauthorized"});
         }
-
         const deletion = await Blog.deleteOne({_id: id});
         
         if(deletion.deletedCount > 0) {

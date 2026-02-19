@@ -53,6 +53,26 @@ const blogs = () => { // funktiona myöhempää varten
     ]
 };
 
+const users = () => {
+    return [
+        {
+            username: "KalleK",
+            name: "Kalle",
+            password: "password123"
+        },
+        {
+            username: "Joonazz",
+            name: "Joonas",
+            password: "password123"
+        },
+        {
+            username: "Karrrrrrrrre_",
+            name: "Kare",
+            password: "password123"
+        }
+    ]
+}
+
 const someUser = async () => {
     return await User.findOne({});
 }
@@ -105,4 +125,4 @@ const mostLikes = (arr) => {
     }
 };
 
-module.exports = {totalLikes, favoriteBlog, mostBlogs, mostLikes, blogs, someUser};
+module.exports = {totalLikes, favoriteBlog, mostBlogs, mostLikes, blogs, users, someUser};

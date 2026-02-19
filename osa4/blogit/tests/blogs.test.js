@@ -1,7 +1,7 @@
 const app = require("../app");
 const Blog = require("../models/Blog.js");
 const supertest = require("supertest");
-const {blogs, someUser} = require("../utils/blogHelper.js");
+const {blogs, someUser, users} = require("../utils/blogHelper.js");
 
 const {test, describe, beforeEach, after} = require("node:test");
 const assert = require("node:assert");
@@ -11,14 +11,19 @@ const User = require("../models/User.js");
 const api = supertest(app);
 
 const initialBlogs = blogs();
+const initialUsers = users();
 
 beforeEach(async () => {
+    await User.deleteMany({});
+    for(const user of initialUsers) {
+        await api.post("/api/users")
+        .send(user);
+    }
+
     await Blog.deleteMany({});
     for(const blog of initialBlogs) {
-        // temp
         const author = await User.findOne({});
         blog.author = author.id;
-
         const newBlog = new Blog(blog);
         await newBlog.save();
     }
@@ -62,7 +67,17 @@ describe("when fetching blogs", () => {
 });
 
 describe("when adding blogs,", () => {
-    test("a single blog can be added", async () => {
+    let token;
+    beforeEach(async () => {
+        const user = await someUser();
+        token = (await api.post("/api/login")
+        .send({
+            username: user.username,
+            password: "password123"
+        })).body.token;
+    });
+
+    test("a single blog can be added with a valid login", async () => {
         const testBlog = {
             _id: '5a422aa71b54a676234d4512',
             title: 'To Go Question Considered Useful',
@@ -75,7 +90,9 @@ describe("when adding blogs,", () => {
         const beforeLen = (await Blog.find({})).length;
         await api.post("/api/blogs")
         .send(testBlog)
+        .auth(token, {type: "bearer"})
         .expect(201);
+
         const afterLen = (await Blog.find({})).length;
 
         assert(afterLen === beforeLen + 1);
@@ -93,6 +110,7 @@ describe("when adding blogs,", () => {
 
         await api.post("/api/blogs")
         .send(testBlog)
+        .auth(token, {type: "bearer"})
         .expect(201);
 
         const addedBlog = await Blog.findOne({url: testBlog.url});
@@ -110,6 +128,7 @@ describe("when adding blogs,", () => {
             __v: 0
             }
         )
+        .auth(token, {type: "bearer"})
         .expect(400);
 
         await api.post("/api/blogs")
@@ -122,19 +141,29 @@ describe("when adding blogs,", () => {
             __v: 0
             }
         )
+        .auth(token, {type: "bearer"})
         .expect(400);
     });
+
+    // TODO cant add without login
 });
 
 describe("when deleting blogs,", () => {
-    test("one can be successfully deleted", async () => {
+    test("one can be successfully deleted by the owner", async () => {
         const exampleBlog = await Blog.findOne({});
-        const exampleId = exampleBlog.id;
 
-        await api.delete(`/api/blogs/${exampleId}`)
+        const author = await User.findById(exampleBlog.author);
+        const token = (await api.post("/api/login")
+        .send({
+            username: author.username,
+            password: "password123"
+        })).body.token;
+
+        await api.delete(`/api/blogs/${exampleBlog.id}`)
+        .auth(token, {type: "bearer"})
         .expect(200);
 
-        await api.get(`/api/blogs/${exampleId}`)
+        await api.get(`/api/blogs/${exampleBlog.id}`)
         .expect(404);
     });
 
@@ -142,9 +171,12 @@ describe("when deleting blogs,", () => {
         await api.delete("/api/blogs/aNonExistentBlogId")
         .expect(404);
     });
+
+    // TODO no deletion if not owner
 });
 
 describe("when updating blogs,", () => {
+    // TODO fix these
     test("a blog can be updated with valid data", async () => {
         const exampleBlog = await Blog.findOne({});
         const exampleId = exampleBlog.id;
