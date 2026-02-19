@@ -2,9 +2,7 @@ const blogController = require("express").Router();
 const Blog = require("../models/Blog");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-const {tokenExtractor} = require("../utils/middleware");
-
-blogController.use(tokenExtractor)
+const {userExtractor} = require("../utils/middleware");
 
 blogController.get("/", async (req, res, next) => {
     try {
@@ -19,7 +17,7 @@ blogController.get("/", async (req, res, next) => {
 blogController.get("/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
-        const blog = await Blog.findOne({_id: id});
+        const blog = await Blog.findOne({_id: id}).populate("author");
 
         if(blog === null) res.status(404).end();
         else res.status(200).json(blog);
@@ -29,17 +27,13 @@ blogController.get("/:id", async (req, res, next) => {
     }
 });
 
-blogController.post("/", async (req, res, next) => {
+blogController.post("/", userExtractor, async (req, res, next) => {
     try {
         if(!req.body.title || !req.body.url) return res.status(400).end();
         
-        const token = req.token;
-        if(!token) return res.status(401).json({err: "Authorization token missing you nitwit"});
+        const user = req.user;
 
-        const auth = jwt.verify(token, process.env.JWT_SECRET);
-        if(!auth.id) return res.status(401).json({err: "Invalid token you scatterbrain"});
-        // console.log(auth)
-        const author = await User.findById(auth.id);
+        const author = await User.findById(user.id);
         if(!author) return res.status(400).json({err: "You... do not exist? How is that possible?"});
 
         const blog = new Blog({...req.body, author: author.id});
@@ -55,15 +49,24 @@ blogController.post("/", async (req, res, next) => {
     }
 });
 
-blogController.delete("/:id", async (req, res, next) => {
+blogController.delete("/:id", userExtractor, async (req, res, next) => {
     try {
         const id = req.params.id;
+        const blog = await Blog.findOne({_id: id});
+        if(!blog) return res.status(404).json({err: "The blog does not exist"});
+
+        const authorId = blog.author;
+        if(authorId.toString() !== req.user.id.toString()) {
+            return res.status(401).json({err: "Unauthorized"});
+        }
+
         const deletion = await Blog.deleteOne({_id: id});
+        
         if(deletion.deletedCount > 0) {
-            res.status(200).end();
+            return res.status(200).end();
         }
         else {
-            res.status(404).end();
+            return res.status(404).end();
         }
     }
     catch(err) {
@@ -71,10 +74,15 @@ blogController.delete("/:id", async (req, res, next) => {
     }
 });
 
-blogController.put("/:id", async (req, res, next) => {
+blogController.put("/:id", userExtractor, async (req, res, next) => {
     try {
         const id = req.params.id;
         const body = req.body;
+
+        const blog = await Blog.findOne({_id: id});
+        if(!blog) return res.status(404).json({err: "The blog does not exist"});
+
+        if(blog.author.toString() !== req.user.id) return res.status(401).json({err: "Unauthorized"});
         
         const update = await Blog.updateOne({_id: id}, body);
         
