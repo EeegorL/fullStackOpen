@@ -145,7 +145,26 @@ describe("when adding blogs,", () => {
         .expect(400);
     });
 
-    // TODO cant add without login
+    test("abscence of login causes error", async () => {
+        const testBlog = {
+            _id: '5a422aa71b54a676234d4512',
+            title: 'To Go Question Considered Useful',
+            author: (await someUser()).id,
+            url: 'http://www.somelink.com/blog',
+            likes: 50,
+            __v: 0
+        };
+
+        const beforeLen = (await Blog.find({})).length;
+        await api.post("/api/blogs")
+        .send(testBlog)
+        // .auth(token, {type: "bearer"})
+        .expect(401);
+
+        const afterLen = (await Blog.find({})).length;
+
+        assert(afterLen === beforeLen);
+    });
 });
 
 describe("when deleting blogs,", () => {
@@ -168,18 +187,51 @@ describe("when deleting blogs,", () => {
     });
 
     test("a non-existent one returns a 404", async () => {
+        const user = (await User.findOne({}));
+        const login = await api.post("/api/login")
+        .send({
+                username: user.username,
+                password: "password123"
+        });
+
         await api.delete("/api/blogs/aNonExistentBlogId")
+        .auth(login.body.token, {type: "bearer"})
         .expect(404);
     });
 
-    // TODO no deletion if not owner
+    test("deletion by some other than the owner gets rejected", async () => {
+        const user = (await User.find({}))[1]; // the 0th is the author of all blogs
+        const login = await api.post("/api/login")
+        .send({
+                username: user.username,
+                password: "password123"
+        });
+
+        const someBlog = await Blog.findOne({});
+
+        await api.delete(`/api/blogs/${someBlog.id}`)
+        .auth(login.token, {type: "bearer"})
+        .expect(401);
+    });
+
+    test("deletion without auth gets rejected", async () => {
+        const someBlog = await Blog.findOne({});
+        await api.delete(`/api/blogs/${someBlog.id}`)
+        .expect(401);
+    });
 });
 
 describe("when updating blogs,", () => {
-    // TODO fix these
-    test("a blog can be updated with valid data", async () => {
+    test("a blog can be updated with valid data by the author", async () => {
         const exampleBlog = await Blog.findOne({});
         const exampleId = exampleBlog.id;
+
+        const author = await User.findOne({_id: exampleBlog.author})
+        const login = await api.post("/api/login")
+        .send({
+            username: author.username,
+            password: "password123"
+        });
 
         const modifications = {
             ...exampleBlog.toObject(),
@@ -189,6 +241,7 @@ describe("when updating blogs,", () => {
 
         await api.put(`/api/blogs/${exampleId}`)
         .send(modifications)
+        .auth(login.body.token, {type: "bearer"})
         .expect(200);
 
         const updatedBlog = await Blog.findOne({_id: modifications._id});
@@ -199,17 +252,41 @@ describe("when updating blogs,", () => {
         const exampleBlog = await Blog.findOne({});
         const exampleId = exampleBlog.id;
 
+        const author = await User.findOne({_id: exampleBlog.author})
+        const login = await api.post("/api/login")
+        .send({
+            username: author.username,
+            password: "password123"
+        });
+
         const modifications = {
             ...exampleBlog.toObject(),
             likes: 100,
             title: exampleBlog.title + " : revised edition",
             price: 500,
-            weight_g: 52,
+            weight_g: 52 // false field
         };
 
         await api.put(`/api/blogs/${exampleId}`)
         .send(modifications)
+        .auth(login.body.token, {type: "bearer"})
         .expect(400);
+    });
+
+    test("an update without a login is rejected", async () => {
+        const exampleBlog = await Blog.findOne({});
+        const exampleId = exampleBlog.id;
+
+        const modifications = {
+            ...exampleBlog.toObject(),
+            likes: 100,
+            title: exampleBlog.title + " : revised edition",
+            price: 500,
+        };
+
+        await api.put(`/api/blogs/${exampleId}`)
+        .send(modifications)
+        .expect(401);
     });
 });
 
