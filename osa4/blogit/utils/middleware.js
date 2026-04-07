@@ -24,6 +24,7 @@ const errorHandler = (err, req, res, next) => {
 };
 
 const userExtractor = async (req, res, next) => {
+    
     const auth = req.get("authorization");
     if(!auth || !auth.startsWith("Bearer ")) return res.status(401).json({err: "Authorization token missing"});
 

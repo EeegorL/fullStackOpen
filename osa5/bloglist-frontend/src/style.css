@@ -1,0 +1,79 @@
+:root {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: larger;
+}
+
+body {
+    background-color: aliceblue;
+    margin: 0;
+    padding: 0;
+}
+
+form > * {
+    display: block;
+}
+
+header {
+    border: 1px solid black;
+}
+
+.appRoot {
+    /* width: 100vw; */
+    height: 100vh;
+    
+    display: grid;
+    grid-template-rows: 1fr 8fr 1fr;
+}
+
+.appRoot > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 50px;
+}
+
+.loginInfo > * {
+    margin-left: 10px;
+}
+
+.appRoot > * {
+    padding: 10px;
+}
+
+.loginInfo * {
+    display: inline;
+}
+
+.newBlogForm {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid black;
+    width: fit-content;
+}
+
+.hidden {
+    display: none;
+}
+
+.notification {
+    position: absolute;
+    width: 100vw;
+    padding: 0;
+    margin-top: 5vh;
+    text-align: center;
+    justify-content: space-between;
+}
+
+.notifError {
+    background-color: red;
+    border:1px solid black;
+    color: whitesmoke;
+    font-weight: bold;
+}
+
+.notifInfo {
+    background: green;
+    border:1px solid black;
+    color: whitesmoke;
+    font-weight: bold;
+}

@@ -1,7 +1,6 @@
 const blogController = require("express").Router();
 const Blog = require("../models/Blog");
 const User = require("../models/User");
-const jwt = require("jsonwebtoken");
 const {userExtractor} = require("../utils/middleware");
 
 blogController.get("/", async (req, res, next) => {
@@ -37,7 +36,6 @@ blogController.post("/", userExtractor, async (req, res, next) => {
         if(!author) return res.status(400).json({err: "You... do not exist? How is that possible?"});
 
         const blog = new Blog({...req.body, author: author.id});
-        
         const created = await blog.save();
         author.blogs.push(blog.id);
         await author.save();
