@@ -92,4 +92,19 @@ blogController.put("/:id", userExtractor, async (req, res, next) => {
     }
 });
 
+blogController.patch("/:id", userExtractor, async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const blog = await Blog.findOne({_id: id});
+        if(!blog) return res.status(404).json({err: "The blog does not exist"});
+        await Blog.findOneAndUpdate({_id: id}, {$inc: {"likes": 1}});
+        
+        res.status(200).end();
+    }
+    catch(err) {
+        next(err);
+    }
+});
+
 module.exports = blogController;

@@ -4,6 +4,7 @@ import blogService from "./services/blogs";
 import "./style.css";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
+import Toggleable from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -20,8 +21,6 @@ const App = () => {
     setBlogs(blogs);
   }
 
-
-  const [blogFormShown, setBlogFormShown] = useState(false);
   useEffect(() => {
     (async () => {
       if(!user) {
@@ -39,7 +38,6 @@ const App = () => {
     setUser(null);
     window.localStorage.removeItem("blogAppUser");
   }
-
   return (
     <div className="appRoot">
       <header>
@@ -58,14 +56,15 @@ const App = () => {
       
       <div>
       {user && <div> 
-          <button onClick={() => setBlogFormShown(!blogFormShown)}>{blogFormShown ? "Hide form" : "Add new"}</button>
-          <div className={`newBlogForm ${!blogFormShown && "hidden"}`}>
-            <BlogForm refresh={refreshBlogs} notify={notify}/>
-          </div>
-          <hr/>
-          {blogs.map(blog =>
+        <Toggleable buttonTextShown={"Add new"} buttonTextHidden={"Hide form"} shown={false}>
+          <BlogForm refresh={refreshBlogs} notify={notify}/>
+        </Toggleable>
+        <hr/>
+        <ul>
+        {blogs.sort((a,b)=> b.likes- a.likes).map(blog =>
           <Blog key={blog.id} blog={blog}/>
-          )}
+        )}
+        </ul>
       </div>
         }
       </div>
@@ -73,10 +72,10 @@ const App = () => {
         daabudiiba
       </footer>
       <div className="notification">
-        <p className={notification ? (notification?.isError ? "notifError" : "notifInfo") : ""}>{notification?.text}</p>
+        <p className={notification ? (notification?.isError ? "notifError" : "notifInfo") : "hidden"}>{notification?.text}</p>
       </div>
     </div>
   )
 }
 
-export default App
+export default App;

@@ -22,4 +22,19 @@ const create = async (data) => {
   }
 }
 
-export default {getAll, create};
+const like = async (blogId) => {
+  const user = JSON.parse(window.localStorage.getItem("blogAppUser"));
+  if(!user.token) return false;
+
+  const bearerToken = `Bearer ${user.token}`;
+
+  try {
+    await axios.patch(`${baseUrl}/${blogId}`, null, {headers: {Authorization: bearerToken}});
+    return true;
+  }
+  catch(err) {
+    return false;
+  }
+}
+
+export default {getAll, create, like};

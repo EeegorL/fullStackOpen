@@ -17,8 +17,13 @@ header {
     border: 1px solid black;
 }
 
+ul, ol {
+    list-style-type: none;
+    padding: 0;
+}
+
 .appRoot {
-    /* width: 100vw; */
+    width: 100vw;
     height: 100vh;
     
     display: grid;
@@ -66,14 +71,26 @@ header {
 
 .notifError {
     background-color: red;
-    border:1px solid black;
+    border: 1px solid black;
     color: whitesmoke;
     font-weight: bold;
 }
 
 .notifInfo {
     background: green;
-    border:1px solid black;
+    border: 1px solid black;
     color: whitesmoke;
     font-weight: bold;
+}
+
+.blogContainer {
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 10px;
+    padding: 5px;
+    background-color: whitesmoke;
+}
+
+.blogContainer p {
+    margin: 0;
 }
