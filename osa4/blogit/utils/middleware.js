@@ -31,7 +31,6 @@ const userExtractor = async (req, res, next) => {
 
     const token = auth.replace("Bearer ", "");
     const user = jwt.verify(token, process.env.JWT_SECRET);
-
     if(!user.id) return res.status(401).json({err: "Invalid token"});
 
     req.user = {

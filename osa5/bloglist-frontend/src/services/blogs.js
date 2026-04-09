@@ -22,14 +22,15 @@ const create = async (data) => {
   }
 }
 
-const like = async (blogId) => {
+const update = async(blog) => {
+  const blogId = blog.id;
   const user = JSON.parse(window.localStorage.getItem("blogAppUser"));
   if(!user.token) return false;
 
   const bearerToken = `Bearer ${user.token}`;
 
   try {
-    await axios.patch(`${baseUrl}/${blogId}`, null, {headers: {Authorization: bearerToken}});
+    await axios.put(`${baseUrl}/like/${blogId}`, blog, {headers: {Authorization: bearerToken}});
     return true;
   }
   catch(err) {
@@ -37,4 +38,18 @@ const like = async (blogId) => {
   }
 }
 
-export default {getAll, create, like};
+const deleteBlog = async (blogId) => {
+  const user = JSON.parse(window.localStorage.getItem("blogAppUser"));
+  if(!user.token) return false;
+  const bearerToken = `Bearer ${user.token}`;
+
+    try {
+      await axios.delete(`${baseUrl}/${blogId}`, {headers: {Authorization: bearerToken}});
+      return true;
+    }
+    catch(err) {
+      return false;
+    }
+}
+
+export default {getAll, create, update, deleteBlog};

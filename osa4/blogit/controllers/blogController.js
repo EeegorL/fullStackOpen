@@ -92,17 +92,20 @@ blogController.put("/:id", userExtractor, async (req, res, next) => {
     }
 });
 
-blogController.patch("/:id", userExtractor, async (req, res) => {
+blogController.put("/like/:id", userExtractor, async (req, res) => { // PUT ilman omistajavaatimusta
     try {
         const id = req.params.id;
+        const body = req.body;
+        body.author = body.author.id;
 
         const blog = await Blog.findOne({_id: id});
         if(!blog) return res.status(404).json({err: "The blog does not exist"});
-        await Blog.findOneAndUpdate({_id: id}, {$inc: {"likes": 1}});
+        await Blog.findOneAndUpdate({_id: id}, body);
         
         res.status(200).end();
     }
     catch(err) {
+        console.log(err)
         next(err);
     }
 });
