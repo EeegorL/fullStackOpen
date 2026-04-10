@@ -5,7 +5,7 @@ const baseUrl = "/api/blogs";
 const getAll = async () => {
   const blogs = await axios.get(baseUrl);
   return blogs;
-}
+};
 
 const create = async (data) => {
   const user = JSON.parse(window.localStorage.getItem("blogAppUser"));
@@ -14,13 +14,13 @@ const create = async (data) => {
   const bearerToken = `Bearer ${user.token}`;
   try {
     const req = await axios.post(baseUrl, data, {headers: {Authorization: bearerToken}});
-    console.log(req)
+    console.log(req);
     return true;
   }
   catch(err) {
-    return false;
+    return err;
   }
-}
+};
 
 const update = async(blog) => {
   const blogId = blog.id;
@@ -34,22 +34,22 @@ const update = async(blog) => {
     return true;
   }
   catch(err) {
-    return false;
+    return err;
   }
-}
+};
 
 const deleteBlog = async (blogId) => {
   const user = JSON.parse(window.localStorage.getItem("blogAppUser"));
   if(!user.token) return false;
   const bearerToken = `Bearer ${user.token}`;
 
-    try {
-      await axios.delete(`${baseUrl}/${blogId}`, {headers: {Authorization: bearerToken}});
-      return true;
-    }
-    catch(err) {
-      return false;
-    }
-}
+  try {
+    await axios.delete(`${baseUrl}/${blogId}`, {headers: {Authorization: bearerToken}});
+    return true;
+  }
+  catch(err) {
+    return err;
+  }
+};
 
 export default {getAll, create, update, deleteBlog};

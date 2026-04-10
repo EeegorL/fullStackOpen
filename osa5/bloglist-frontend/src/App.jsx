@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import "./style.css";
@@ -14,12 +14,12 @@ const App = () => {
   const notify = (text, err) => {
     setNotification({text: text, isError: err});
     setTimeout(() => setNotification(null), 2000);
-  }
-  
+  };
+
   const refreshBlogs = async () => {
     const blogs = (await blogService.getAll()).data;
     setBlogs(blogs);
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -33,39 +33,40 @@ const App = () => {
       setBlogs(blogs);
     })();
   }, [user]);
-  
+
   const logout = () => {
     setUser(null);
     window.localStorage.removeItem("blogAppUser");
-  }
+  };
+
   return (
     <div className="appRoot">
       <header>
         <h2>blogs</h2>
         <div className="loginInfo">
           {user
-          ? <>
-            <p>Logged in as {user.username}</p>
-            <button onClick={logout}>Logout</button>
-          </>
-          : <LoginForm setUser={setUser} notify={notify}/>
+            ? <>
+              <p>Logged in as {user.username}</p>
+              <button onClick={logout}>Logout</button>
+            </>
+            : <LoginForm setUser={setUser} notify={notify}/>
           }
-          
+
         </div>
       </header>
-      
+
       <div>
-      {user && <div> 
-        <Toggleable buttonTextShown={"Add new"} buttonTextHidden={"Hide form"} shown={false}>
-          <BlogForm refresh={refreshBlogs} notify={notify}/>
-        </Toggleable>
-        <hr/>
-        <ul>
-        {blogs.sort((a,b)=> b.likes- a.likes).map(blog =>
-          <Blog key={blog.id} blog={blog} refresh={refreshBlogs} user={user}/>
-        )}
-        </ul>
-      </div>
+        {user && <div>
+          <Toggleable buttonTextShown={"Add new"} buttonTextHidden={"Hide form"} shown={false}>
+            <BlogForm refresh={refreshBlogs} notify={notify}/>
+          </Toggleable>
+          <hr/>
+          <ul>
+            {blogs.sort((a,b) => b.likes- a.likes).map(blog =>
+              <Blog key={blog.id} blog={blog} refresh={refreshBlogs} user={user}/>
+            )}
+          </ul>
+        </div>
         }
       </div>
       <footer>
@@ -75,7 +76,7 @@ const App = () => {
         <p className={notification ? (notification?.isError ? "notifError" : "notifInfo") : "hidden"}>{notification?.text}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default App;
